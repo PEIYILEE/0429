@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Multi-Agent 問答系統 (Markdown 渲染版)</title>
+    <!-- 引入 marked.js，這是 Markdown -> HTML 的 JS 工具 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <h1>Multi-Agent 作寫作系統</h1>
+
+    <input type="text" id="userInput" placeholder="請輸入你的問題" style="width: 300px;">
+    <button onclick="askQuestion()">送出問題</button>
+
+    <h2>回覆：</h2>
+    <div id="response" style="border:1px solid #ccc; padding:20px; margin-top:10px;"></div>
+
+    <script>
+        async function askQuestion() {
+            const userInput = document.getElementById('userInput').value;
+            const responseDiv = document.getElementById('response');
+            responseDiv.innerHTML = "⏳ 正在處理中...請稍等";
+
+            try {
+                const res = await fetch('http://localhost:5000/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ user_input: userInput }),
+                });
+
+                const data = await res.json();
+                const markdownText = data.response;
+
+                // 用 marked.js 把 Markdown 文字轉成 HTML
+                responseDiv.innerHTML = marked.parse(markdownText);
+            } catch (error) {
+                responseDiv.innerHTML = "❌ 發生錯誤：" + error;
+            }
+        }
+    </script>
+</body>
+</html>
